@@ -61,6 +61,9 @@ A programme written in `tcl/tk` to take user input from console, and plot a hist
 ## Reflections
 > I personally always find it fun to learn new things, but I was surprised by how long I need to finish this project. Logics are simple but debugging and looking for reference is hard. However, I never felt so excited to get this done!!! In new language!!! WOW, anyway, I am proud of what I have done.
 
+## Bug
+The histogram seems to have some displacement on the x-axis, which I am sure can be resolved by using barchart, but that would not fulfull the requirement. Will look into that later.
+
 ## References
 
 1. [Getting Started Tutorial from ActiveTcl](http://docs.activestate.com/activetcl/8.6/)
