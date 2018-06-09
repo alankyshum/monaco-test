@@ -1,6 +1,8 @@
 # Monaco test
 A programme written in `tcl/tk` to take user input from console, and plot a histogram chart on the occurrence of different alphabet characters in the input.
 
+![image](https://i.imgur.com/Tqb3VRPl.png)
+
 ## Within 1.5 hour
 
 1. What? What's TCL? Googled around and downloaded the installation package, coz the
