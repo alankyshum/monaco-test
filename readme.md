@@ -14,8 +14,6 @@ A programme written in `tcl/tk` to take user input from console, and plot a hist
     - allowing me to run build as quickly as possible
     ```json
     {
-      // See https://go.microsoft.com/fwlink/?LinkId=733558
-      // for the documentation about the tasks.json format
       "version": "2.0.0",
       "tasks": [
         {
