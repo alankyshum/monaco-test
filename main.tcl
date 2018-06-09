@@ -1,8 +1,7 @@
 package require Plotchart
 
 puts "What do you want to say?"
-set userInput "aaaabbccee"
-# set userInput [gets stdin]
+set userInput [gets stdin]
 
 proc getLetterOccurrence {srcString} {
   array set occurrenceList [list]
