@@ -1,39 +1,46 @@
+package require Plotchart
+
 puts "What do you want to say?"
 set userInput "aaaabbcc"
 # set userInput [gets stdin]
 
-array set letterOccurrenceList [list]
+proc getLetterOccurrence {srcString} {
+  array set occurrenceList [list]
+  set srcStringLength [string length $srcString]
 
-proc getLetterOccurrence {userInput} {
-  set userInputLength [string length $userInput]
+  for {set i 0} {$i < [string length $srcString]} {incr i} {
+    set letter [string index $srcString $i];
 
-  for {set i 0} {$i < [string length $userInput]} {incr i} {
-    set letter [string index $userInput $i];
-
-    if ([info exists letterOccurrenceList($letter)]) {
-      incr letterOccurrenceList($letter);
+    if ([info exists occurrenceList($letter)]) {
+      incr occurrenceList($letter);
     } else {
-      set letterOccurrenceList($letter) 1;
+      set occurrenceList($letter) 1;
     }
   }
 
-  foreach {letter occurrence} [array get letterOccurrenceList] {
+  foreach {letter occurrence} [array get occurrenceList] {
     set occurrence [expr double($occurrence)]
-    set letterOccurrenceList($letter) [expr {$occurrence / $userInputLength * 100}]
+    set occurrenceList($letter) [expr {$occurrence / $userInputLength * 100}]
   }
 
-  return [array get letterOccurrenceList]
+  return [array get occurrenceList]
 }
 
-puts [getLetterOccurrence $userInput]
+set letterOccurrenceList [getLetterOccurrence $userInput]
 
-# # get percentages
-# Object.keys(letterOccurrenceList).forEach(letter => {
-#   letterOccurrenceList[letter] = letterOccurrenceList[letter] / userInputLength;
-# })
+# pack [canvas .c -width 400 -height 300 -bg white]
 
-# # plot chart
+# set p [::Plotchart::createHistogram .c {0 100 20} {0 50 10}]
+
+# $p dataconfig data -style filled -fillcolour cyan -width 2 -colour blue
+
+# $p plot data 0.0  10.0
+# $p plot data 20.0 10.0
+# $p plot data 40.0  3.0
+# $p plot data 45.0  6.0
+# $p plot data 55.0 26.0
+# $p plot data 67.0 24.0
 
 
-# debugging
-exit
+# # debugging
+# exit
