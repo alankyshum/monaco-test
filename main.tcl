@@ -30,9 +30,25 @@ proc getLetterOccurrence {srcString} {
 array set letterOccurrenceList [getLetterOccurrence $userInput]
 puts "\[DEBUG\] letterOccurrenceList = [array get letterOccurrenceList]"
 
-pack [canvas .c -width 1280 -height 720 -bg white];
+proc findMax {valueList} {
+  array set valueArray $valueList
+  set max 0
+
+  foreach {letter occurrence} [array get valueArray] {
+    set occurrence [expr double($occurrence)]
+    if ([expr {$occurrence > $max}]) { set max $occurrence }
+  }
+
+  return $max
+}
+
 set alphabets [list A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]
-set p [::Plotchart::createHistogram .c {0 26 ""} {0 100 1} \
+set maxPercentage [findMax [array get letterOccurrenceList]]
+set yRange [list 0 $maxPercentage 1]
+set xRange [list 0 [llength $alphabets] ""]
+
+pack [canvas .c -width 1280 -height 720 -bg white];
+set p [::Plotchart::createHistogram .c $xRange $yRange \
   -xlabels $alphabets
 ];
 
@@ -48,9 +64,9 @@ for {set i 0} {$i < [llength $alphabets]} {incr i} {
     set occurrence 0
   }
 
-  # puts "letter plotData: $letter $chartIndex $occurrence";
+  puts "letter plotData: $letter $chartIndex $occurrence";
   $p plot data $chartIndex $occurrence;
 }
 
-# debugging
+# # # debugging
 # exit
