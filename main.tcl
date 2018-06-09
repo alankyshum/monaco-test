@@ -48,6 +48,7 @@ set yRange [list 0 $maxPercentage 1]
 set xRange [list 0 [llength $alphabets] ""]
 
 pack [canvas .c -width 1280 -height 720 -bg white];
+Plotchart::plotstyle configure default histogram leftaxis format "%.0f%%"
 set p [::Plotchart::createHistogram .c $xRange $yRange \
   -xlabels $alphabets
 ];
