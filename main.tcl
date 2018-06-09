@@ -1,7 +1,7 @@
 puts "What do you want to say?"
 
-set userInput "asdasdasdasd asd asd"
-# set userInput [gets stdin]
+# set userInput "asdasdasdasd asd asd"
+set userInput [gets stdin]
 
 array set letterOccurrenceList [list]
 set userInputLength [string length $userInput]
