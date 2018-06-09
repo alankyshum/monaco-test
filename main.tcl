@@ -1,6 +1,6 @@
 puts "What do you want to say?"
 
-set userInput "asdasdasdasd asd asd"
+set userInput "aaaabbcc"
 # set userInput [gets stdin]
 
 array set letterOccurrenceList [list]
@@ -8,19 +8,24 @@ set userInputLength [string length $userInput]
 
 puts "\[DEBUG\]: String '$userInput' with length $userInputLength"
 
-# # get number of occurrence of each letter
 for {set i 0} {$i < [string length $userInput]} {incr i} {
   set letter [string index $userInput $i];
-  set letterOccurence [array get letterOccurrenceList($letter)];
 
-  set hasRecord [info exists letterOccurrenceList($letter)];
-  puts "$letter has record? $hasRecord"
-  if ($hasRecord) { set letterOccurence [incr $letterOccurence] } else { set letterOccurence 0 }
-
-  set letterOccurrenceList($letter) $letterOccurence
+  if ([info exists letterOccurrenceList($letter)]) {
+    incr letterOccurrenceList($letter);
+  } else {
+    set letterOccurrenceList($letter) 1;
+  }
 }
 
-puts [array get letterOccurrenceList]
+puts "\[DEBUG\]: [array get letterOccurrenceList]"
+
+foreach {letter occurrence} [array get letterOccurrenceList] {
+  set occurrence [expr double($occurrence)]
+  set letterOccurrenceList($letter) [expr {$occurrence / $userInputLength * 100}]
+}
+
+puts "\[DEBUG\]: [array get letterOccurrenceList]"
 
 # # get percentages
 # Object.keys(letterOccurrenceList).forEach(letter => {
