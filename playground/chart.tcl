@@ -1,288 +1,161 @@
-# slipchart.tcl --
- #    Facilities to draw a slipchart in a dedicated canvas
- #
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 
- # Slipchart --
- #    Namespace to hold the procedures and the private data
- #
- namespace eval ::Slipchart {
-    variable scaling
-    variable data_series
+# plotdemos7.tcl --
+#     This test/demo script focuses on customising the plots
+#
+package require Tcl 8.5
+package require Tk
+package require Plotchart
 
-    namespace export worldCoordinates viewPort createSlipchart \
-                     coordsToPixel
- }
- # viewPort --
- #    Set the pixel extremes for the graph
- # Arguments:
- #    w           Name of the canvas window
- #    pxmin       Minimum X-coordinate
- #    pxmax       Maximum X-coordinate
- #    pymin       Minimum Y-coordinate
- #    pymax       Maximum Y-coordinate
- # Result:
- #    None
- # Side effect:
- #    Array scaling filled
- #
- proc ::Slipchart::viewPort { w pxmin pxmax pymin pymax } {
-    variable scaling
+# plotdemos7.tcl --
+#    Test/demo program 7 for the Plotchart package
+#
 
-    set scaling($w,pxmin)    $pxmin
-    set scaling($w,pymin)    $pymin
-    set scaling($w,pxmax)    $pxmax
-    set scaling($w,pymax)    $pymax
-    set scaling($w,new)      1
- }
+#
+# Main code
+#
+canvas .c  -background white -width 400 -height 200
+canvas .c2 -background white -width 400 -height 200
+canvas .c3 -background white -width 400 -height 200
+pack   .c .c2 .c3 -fill both -side top
 
- # worldCoordinates --
- #    Set the extremes for the world coordinates
- # Arguments:
- #    w           Name of the canvas window
- #    width       Width of the canvas window
- #    height      Height of the canvas window
- #    xmin        Minimum X-coordinate
- #    xmax        Maximum X-coordinate
- #    ymin        Minimum Y-coordinate
- #    ymax        Maximum Y-coordinate
- # Result:
- #    None
- # Side effect:
- #    Array scaling filled
- #
- proc ::Slipchart::worldCoordinates { w xmin xmax ymin ymax } {
-    variable scaling
+toplevel .h
+canvas .h.c  -background white -width 400 -height 200
+canvas .h.c2 -background white -width 400 -height 200
+pack   .h.c .h.c2 -fill both -side top
 
-    set scaling($w,xmin)    $xmin
-    set scaling($w,ymin)    $ymin
-    set scaling($w,xmax)    $xmax
-    set scaling($w,ymax)    $ymax
+toplevel .v
+canvas .v.c  -background white -width 400 -height 200
+canvas .v.c2 -background white -width 400 -height 200
+canvas .v.c3 -background white -width 400 -height 200
+pack   .v.c .v.c2 .v.c3 -fill both -side top
 
-    set scaling($w,new)     1
- }
+::Plotchart::plotconfig xyplot title font "Times 14"
+::Plotchart::plotconfig xyplot title textcolor "red"
+::Plotchart::plotconfig xyplot leftaxis font "Helvetica 10 italic"
+::Plotchart::plotconfig xyplot leftaxis thickness 2
+::Plotchart::plotconfig xyplot leftaxis ticklength -5
+::Plotchart::plotconfig xyplot rightaxis font "Times 10 bold"
+::Plotchart::plotconfig xyplot rightaxis color green
+::Plotchart::plotconfig xyplot rightaxis thickness 2
+::Plotchart::plotconfig xyplot margin right 100
 
- # coordsToPixel --
- #    Convert world coordinates to pixel coordinates
- # Arguments:
- #    w           Name of the canvas
- #    xcrd        X-coordinate
- #    ycrd        Y-coordinate
- # Result:
- #    List of two elements, x- and y-coordinates in pixels
- #
- proc ::Slipchart::coordsToPixel { w xcrd ycrd } {
-    variable scaling
+set s [::Plotchart::createXYPlot .c {0.0 100.0 10.0} {0.0 100.0 20.0}]
+set r [::Plotchart::createRightAxis .c {0.0 0.1 0.01}]
 
-    if { $scaling($w,new) == 1 } {
-       set scaling($w,new)     0
-       set width               [expr {$scaling($w,pxmax)-$scaling($w,pxmin)+1}]
-       set height              [expr {$scaling($w,pymax)-$scaling($w,pymin)+1}]
+set xd    5.0
+set yd   20.0
+set xold  0.0
+set yold 50.0
 
-       set dx                  [expr {$scaling($w,xmax)-$scaling($w,xmin)}]
-       set dy                  [expr {$scaling($w,ymax)-$scaling($w,ymin)}]
-       set scaling($w,xfactor) [expr {$width/$dx}]
-       set scaling($w,yfactor) [expr {$height/$dy}]
-    }
+$s dataconfig series1 -colour "red"
+$s dataconfig series2 -colour "blue"
+$s dataconfig series3 -colour "magenta"
 
-    set xpix [expr {$scaling($w,pxmin)+($xcrd-$scaling($w,xmin))*$scaling($w,xfactor)}]
-    set ypix [expr {$scaling($w,pymin)+($scaling($w,ymax)-$ycrd)*$scaling($w,yfactor)}]
-    return [list $xpix $ypix]
- }
+for { set i 0 } { $i < 20 } { incr i } {
+   set xnew [expr {$xold+$xd}]
+   set ynew [expr {$yold+(rand()-0.5)*$yd}]
+   set ynew2 [expr {$yold+(rand()-0.5)*2.0*$yd}]
+   $s plot series1 $xnew $ynew
+   $s plot series2 $xnew $ynew2
+   $s trend series3 $xnew $ynew2
+   set xold $xnew
+   set yold $ynew
+}
 
- # createSlipchart --
- #    Create a command for drawing a slipchart
- # Arguments:
- #    w           Name of the canvas
- #    xscale      Minimum, maximum and step for x-axis (initial)
- #    yscale      Minimum, maximum and step for y-axis
- # Result:
- #    Name of a new command
- # Note:
- #    The entire canvas will be dedicated to the slipchart.
- #    The slipchart will be drawn with axes
- #
- proc ::Slipchart::createSlipchart { w xscale yscale } {
-    variable data_series
+$s interval series2 50.0 40.0 60.0 52.0
+$s interval series2 60.0 40.0 60.0
 
-    foreach s [array names data_series "$w,*"] {
-       unset data_series($s)
-    }
+$s xtext "X-coordinate"
+$s ytext "Y-data"
+$r ytext "Right axis"
+$s title "Aha!"
 
-    set newchart "slipchart_$w"
-    interp alias {} $newchart {} ::Slipchart::DrawData $w
+#
+# Some data for the right axis
+#
+$r dataconfig right -type both -symbol circle -colour green
+$r plot right 10.0 0.01
+$r plot right 30.0 0.03
+$r plot right 40.0 0.02
 
-    set pxmin 80
-    set pymin 20
-    set pxmax [expr {[$w cget -width]  - 40}]
-    set pymax [expr {[$w cget -height] - 20}]
+tkwait visibility .c
+#$s saveplot "aha.ps"
 
-    foreach {xmin xmax xdelt} $xscale {break}
-    foreach {ymin ymax ydelt} $yscale {break}
 
-    viewPort         $w $pxmin $pxmax $pymin $pymax
-    worldCoordinates $w $xmin  $xmax  $ymin  $ymax
+set s [::Plotchart::createPiechart .c2]
 
-    DrawYaxis        $w $ymin  $ymax  $ydelt
-    DrawXaxis        $w $xmin  $xmax  $xdelt
-    DrawMask         $w
+$s plot {"Long names" 10 "Short names" 30 "Average" 40
+         "Ultra-short names" 5}
+#
+# Note: title should be shifted up
+#       - distinguish a separate title area
+#
+$s title "Okay - this works"
 
-    return $newchart
- }
 
- # DrawYaxis --
- #    Draw the y-axis
- # Arguments:
- #    w           Name of the canvas
- #    ymin        Minimum y coordinate
- #    ymax        Maximum y coordinate
- #    ystep       Step size
- # Result:
- #    None
- # Side effects:
- #    Axis drawn in canvas
- #
- proc ::Slipchart::DrawYaxis { w ymin ymax ydelt } {
-    variable scaling
 
-    $w create line $scaling($w,pxmin) $scaling($w,pymin) \
-                   $scaling($w,pxmin) $scaling($w,pymax) \
-                   -fill black -tag yaxis
+set s [::Plotchart::createPolarplot .c3 {3.0 1.0}]
 
-    set y $ymin
-    while { $y < $ymax+0.5*$ydelt } {
-       foreach {xcrd ycrd} [coordsToPixel $w $scaling($w,xmin) $y] {break}
-       $w create text $xcrd $ycrd -text $y -tag yaxis -anchor e
-       set y [expr {$y+$ydelt}]
-    }
- }
+for { set angle 0 } { $angle < 360.0 } { set angle [expr {$angle+10.0}] } {
+   set rad [expr {1.0+cos($angle*$::Plotchart::torad)}]
+   $s plot "cardioid" $rad $angle
+}
 
- # DrawXaxis --
- #    Draw the x-axis
- # Arguments:
- #    w           Name of the canvas
- #    xmin        Minimum x coordinate
- #    xmax        Maximum x coordinate
- #    xstep       Step size
- # Result:
- #    None
- # Side effects:
- #    Axis drawn in canvas
- #
- proc ::Slipchart::DrawXaxis { w xmin xmax xdelt } {
-    variable scaling
+$s title "Cardioid"
 
-    $w delete xaxis
 
-    $w create line $scaling($w,pxmin) $scaling($w,pymax) \
-                   $scaling($w,pxmax) $scaling($w,pymax) \
-                   -fill black -tag xaxis
+set s [::Plotchart::createBarchart .h.c {A B C D E} {0.0 10.0 2.0} 2.5]
 
-    set x $xmin
-    while { $x < $xmax+0.5*$xdelt } {
-       foreach {xcrd ycrd} [coordsToPixel $w $x $scaling($w,ymin)] {break}
-       $w create text $xcrd $ycrd -text $x -tag xaxis -anchor n
-       set x [expr {$x+$xdelt}]
-    }
+$s plot series1 {1.0 4.0 6.0 1.0 7.0} red
+$s plot series2 {0.0 3.0 7.0 9.3 2.0} green
+$s title "Arbitrary data"
 
-    set scaling($w,xdelt) $xdelt
- }
+#
+# Legend _after_ the data - then the colors are known!
+#
+$s legend series1 "Series 1"
+$s legend series2 "Series 2"
 
- # DrawMask --
- #    Draw the stuff that masks the data lines outside the graph
- # Arguments:
- #    w           Name of the canvas
- # Result:
- #    None
- # Side effects:
- #    Several polygons drawn in the background colour
- #
- proc ::Slipchart::DrawMask { w } {
-    variable scaling
 
-    set width  [$w cget -width]
-    set height [expr {[$w cget -height] + 1}]
-    set colour [$w cget -background]
-    set pxmin  $scaling($w,pxmin)
-    set pxmax  $scaling($w,pxmax)
-    set pymin  $scaling($w,pymin)
-    set pymax  $scaling($w,pymax)
-    $w create rectangle 0 0      $pxmin $height -fill $colour -outline $colour -tag mask
-    $w create rectangle 0 0      $width $pymin  -fill $colour -outline $colour -tag mask
-    $w create rectangle 0 $pymax $width $height -fill $colour -outline $colour -tag mask
+set s [::Plotchart::createBarchart .h.c2 {A B C D E} {0.0 20.0 5.0} stacked]
 
-    $w lower mask
- }
+$s plot series1 {1.0 4.0 6.0 1.0 7.0} red
+$s plot series2 {0.0 3.0 7.0 9.3 2.0} green
+$s title "Stacked diagram"
 
- # DrawData --
- #    Draw the x-axis
- # Arguments:
- #    w           Name of the canvas
- #    series      Data series
- #    xcrd        Next x coordinate
- #    ycrd        Next y coordinate
- # Result:
- #    None
- # Side effects:
- #    Axis drawn in canvas
- #
- proc ::Slipchart::DrawData { w series xcrd ycrd } {
-    variable data_series
-    variable scaling
 
-    if { $xcrd > $scaling($w,xmax) } {
-       set xdelt $scaling($w,xdelt)
-       set xmin  $scaling($w,xmin)
-       set xmax  $scaling($w,xmax)
 
-       set xminorg $xmin
-       while { $xmax < $xcrd } {
-          set xmin [expr {$xmin+$xdelt}]
-          set xmax [expr {$xmax+$xdelt}]
-       }
-       set ymin  $scaling($w,ymin)
-       set ymax  $scaling($w,ymax)
+::Plotchart::plotconfig horizbars leftaxis font "Helvetica 10 italic"
+::Plotchart::plotconfig horizbars background outercolor steelblue3
+::Plotchart::plotconfig horizbars bottomaxis ticklength -5
 
-       worldCoordinates $w $xmin $xmax $ymin $ymax
-       DrawXaxis $w $xmin $xmax $xdelt
+set s [::Plotchart::createHorizontalBarchart .v.c {0.0 10.0 2.0} \
+         {Antarctica Eurasia "The Americas" "Australia and Oceania" Ocean} 2]
 
-       foreach {pxminorg pyminorg} [coordsToPixel $w $xminorg $ymin] {break}
-       foreach {pxmin pymin}       [coordsToPixel $w $xmin    $ymin] {break}
-       $w move data [expr {$pxminorg-$pxmin+1}] 0
-    }
+$s plot series1 {1.0 4.0 6.0 1.0 7.0} red left-right
+$s plot series2 {0.0 3.0 7.0 9.3 2.0} green right-left
+$s title "Arbitrary data"
 
-    #
-    # Draw the line piece
-    #
-    if { [info exists data_series($w,$series,x)] } {
-       set xold $data_series($w,$series,x)
-       set yold $data_series($w,$series,y)
-       foreach {pxold pyold} [coordsToPixel $w $xold $yold] {break}
-       foreach {pxcrd pycrd} [coordsToPixel $w $xcrd $ycrd] {break}
-       $w create line $pxold $pyold $pxcrd $pycrd \
-                      -fill black -tag data
-       $w lower data
-    }
 
-    set data_series($w,$series,x) $xcrd
-    set data_series($w,$series,y) $ycrd
- }
+set s [::Plotchart::createHorizontalBarchart .v.c2 {0.0 20.0 5.0} {A B C D E} stacked]
 
- #
- # Main code
- #
- canvas .c -background white -width 400 -height 200
- pack   .c -fill both
+$s plot series1 {1.0 4.0 6.0 1.0 7.0} red left-right
+$s plot series2 {0.0 3.0 7.0 9.3 2.0} green
+$s title "Stacked diagram"
 
- set s [::Slipchart::createSlipchart .c {0.0 100.0 10.0} {0.0 100.0 20.0}]
 
- proc gendata {slipchart xold xd yold yd} {
-    set xnew  [expr {$xold+$xd}]
-    set ynew  [expr {$yold+(rand()-0.5)*$yd}]
-    set ynew2 [expr {$yold+(rand()-0.5)*2.0*$yd}]
-    $slipchart series1 $xnew $ynew
-    $slipchart series2 $xnew $ynew2
+set s [::Plotchart::createTimechart .v.c3 "1 january 2004" \
+                                          "31 december 2004" 4]
 
-    after 500 [list gendata $slipchart $xnew $xd $ynew $yd]
- }
-
- after 100 [list gendata $s 0.0 15.0 50.0 30.0]
+$s period "Spring" "1 march 2004" "1 june 2004" green
+$s period "Summer" "1 june 2004" "1 september 2004" yellow
+$s addperiod "21 september 2004" "21 october 2004" blue
+$s vertline "1 jan" "1 january 2004"
+$s vertline "1 apr" "1 april 2004" lime
+$s vertline "1 jul" "1 july 2004"
+$s vertline "1 oct" "1 october 2004"
+$s milestone "Longest day" "21 july 2004"
+$s addmilestone "21 december 2004"
+$s title "Seasons (northern hemisphere)"

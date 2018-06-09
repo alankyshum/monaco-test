@@ -1,7 +1,7 @@
 package require Plotchart
 
 puts "What do you want to say?"
-set userInput "aaaabbcc"
+set userInput "aaaabbccee"
 # set userInput [gets stdin]
 
 proc getLetterOccurrence {srcString} {
@@ -10,6 +10,7 @@ proc getLetterOccurrence {srcString} {
 
   for {set i 0} {$i < [string length $srcString]} {incr i} {
     set letter [string index $srcString $i];
+    set letter [string toupper $letter ]
 
     if ([info exists occurrenceList($letter)]) {
       incr occurrenceList($letter);
@@ -20,27 +21,36 @@ proc getLetterOccurrence {srcString} {
 
   foreach {letter occurrence} [array get occurrenceList] {
     set occurrence [expr double($occurrence)]
-    set occurrenceList($letter) [expr {$occurrence / $userInputLength * 100}]
+    set occurrenceList($letter) [expr {$occurrence / $srcStringLength * 100}]
   }
 
   return [array get occurrenceList]
 }
 
-set letterOccurrenceList [getLetterOccurrence $userInput]
+array set letterOccurrenceList [getLetterOccurrence $userInput]
+puts "\[DEBUG\] letterOccurrenceList = [array get letterOccurrenceList]"
 
-# pack [canvas .c -width 400 -height 300 -bg white]
+pack [canvas .c -width 1280 -height 720 -bg white];
+set alphabets [list A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]
+set p [::Plotchart::createHistogram .c {0 26 ""} {0 100 1} \
+  -xlabels $alphabets
+];
 
-# set p [::Plotchart::createHistogram .c {0 100 20} {0 50 10}]
+$p dataconfig data -style filled -fillcolour #50ACC4 -colour "";
 
-# $p dataconfig data -style filled -fillcolour cyan -width 2 -colour blue
+for {set i 0} {$i < [llength $alphabets]} {incr i} {
+  set letter [lindex $alphabets $i]
+  set chartIndex [expr {$i + 1}]
 
-# $p plot data 0.0  10.0
-# $p plot data 20.0 10.0
-# $p plot data 40.0  3.0
-# $p plot data 45.0  6.0
-# $p plot data 55.0 26.0
-# $p plot data 67.0 24.0
+  if ([info exists letterOccurrenceList($letter)]) {
+    set occurrence $letterOccurrenceList($letter)
+  } else {
+    set occurrence 0
+  }
 
+  # puts "letter plotData: $letter $chartIndex $occurrence";
+  $p plot data $chartIndex $occurrence;
+}
 
-# # debugging
+# debugging
 # exit
